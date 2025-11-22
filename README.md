@@ -141,12 +141,6 @@ This generator can be extended to support:
 
 ---
 
-## 📄 License
-
-MIT License.
-
----
-
 ## 👤 Author
 
 Steven Li  
