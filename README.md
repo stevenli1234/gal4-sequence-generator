@@ -1,7 +1,8 @@
 # GAL4 PFM-Based Sequence Generator  
 Generate synthetic DNA sequences of any length with embedded transcription factor motifs.
 
-This repository contains a reproducible R workflow for generating synthetic promoter-like sequences using GAL4 transcription factor binding site models (PFMs).  
+This repository includes a reproducible R workflow for generating synthetic promoter-like sequences using GAL4 
+transcription factor binding site models (PFMs).  
 The generator builds a random DNA background of user-defined length and embeds a sampled motif instance inside, matching the design logic for TF occupancy experiments.
 
 ---
