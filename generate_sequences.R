@@ -1,6 +1,32 @@
-### ------------------------------
-### 1. Load Required Functions
-### ------------------------------
+###############################################
+# GAL4 Synthetic Sequence Generator
+# ---------------------------------------------
+# This script loads several GAL4 position frequency 
+# matrices (PFMs) from the ./pfms/ folder, generates 
+# synthetic DNA binding sequences for each motif, and 
+# saves them into the ./output/ folder.
+#
+# HOW TO USE:
+# 1. Clone the repository:
+#       git clone https://github.com/stevenli1234/gal4-sequence-generator.git
+#
+# 2. Open R or RStudio.
+#
+# 3. Set working directory to the project folder:
+#       setwd("path/to/gal4-sequence-generator")
+#
+# 4. Run the script:
+#       source("generate_sequences.R")
+#
+# OUTPUT:
+# - Synthetic sequences will appear in the ./output/ directory.
+# - 50,000 sequences generated per motif (modifiable).
+#
+###############################################
+
+# -----------------------------
+# Functions
+# -----------------------------
 
 generate_sequence_from_pfm <- function(pfm) {
   bases <- c("A", "C", "G", "T")
@@ -10,22 +36,22 @@ generate_sequence_from_pfm <- function(pfm) {
   paste(seq, collapse = "")
 }
 
-generate_sequences <- function(pfm, n = 100) {
+generate_sequences <- function(pfm, n = 50000) {
   replicate(n, generate_sequence_from_pfm(pfm))
 }
 
-### ------------------------------
-### 2. Load All 7 Motif Files
-### ------------------------------
+# -----------------------------
+# Load PFMs (relative paths)
+# -----------------------------
 
 motif_files <- list(
-  M01681 = "~/BrentLab/Library/Forward/Gal4_M01681_3.00.txt",
-  M07980 = "~/BrentLab/Library/Forward/Gal4_M07980_3.00.txt",
-  M07981 = "~/BrentLab/Library/Forward/Gal4_M07981_3.00.txt",
-  M07982 = "~/BrentLab/Library/Forward/Gal4_M07982_3.00.txt",
-  M09821 = "~/BrentLab/Library/Forward/Gal4_M09821_3.00.txt",
-  M12610 = "~/BrentLab/Library/Forward/Gal4_M12610_3.00.txt",
-  M12611 = "~/BrentLab/Library/Forward/Gal4_M12611_3.00.txt"
+  M01681 = "pfms/Gal4_M01681_3.00.txt",
+  M07980 = "pfms/Gal4_M07980_3.00.txt",
+  M07981 = "pfms/Gal4_M07981_3.00.txt",
+  M07982 = "pfms/Gal4_M07982_3.00.txt",
+  M09821 = "pfms/Gal4_M09821_3.00.txt",
+  M12610 = "pfms/Gal4_M12610_3.00.txt",
+  M12611 = "pfms/Gal4_M12611_3.00.txt"
 )
 
 load_pfm <- function(path) {
@@ -35,28 +61,35 @@ load_pfm <- function(path) {
 
 pfm_list <- lapply(motif_files, load_pfm)
 
-### ------------------------------
-### 3. Generate Sequences
-### ------------------------------
+# -----------------------------
+# Generate sequences
+# -----------------------------
 
 set.seed(123)
 
-generated_sequences <- lapply(pfm_list, generate_sequences, n = 50)
+generated_sequences <- lapply(pfm_list, generate_sequences, n = 50000)
 
-### ------------------------------
-### 4. Print Example Outputs
-### ------------------------------
+# -----------------------------
+# Save output to ./output/
+# -----------------------------
+
+if (!dir.exists("output")) dir.create("output")
 
 for (tf in names(generated_sequences)) {
-  cat("=== Motif", tf, "===\n")
-  print(generated_sequences[[tf]][1:5])
+  output_file <- paste0("output/synthetic_", tf, "_50000seqs.txt")
+  writeLines(generated_sequences[[tf]], output_file)
+}
+
+# -----------------------------
+# Print examples
+# -----------------------------
+
+for (tf in names(generated_sequences)) {
+  cat("=== Example from", tf, "===\n")
+  print(generated_sequences[[tf]][1:3])
   cat("\n")
 }
 
-### ------------------------------
-### 5. (Optional) Save Each Set
-### ------------------------------
-# for (tf in names(generated_sequences)) {
-#   writeLines(generated_sequences[[tf]],
-#              paste0("generated_", tf, "_seqs.txt"))
-# }
+###############################################
+# END OF SCRIPT
+###############################################
