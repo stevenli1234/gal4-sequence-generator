@@ -7,7 +7,7 @@ The generator builds a random DNA background of user-defined length and embeds a
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 gal4-sequence-generator/
@@ -31,7 +31,7 @@ gal4-sequence-generator/
 
 ---
 
-## 🎯 Purpose
+## Purpose
 
 This tool generates DNA sequences with the following structure:
 
@@ -46,7 +46,7 @@ This matches Method 2 described in the project discussion:
 
 ---
 
-## 🚀 Quick Start
+## Tutorial
 
 ### 1. Clone the repository
 
@@ -81,7 +81,7 @@ output/embedded_M01681_323bp_100seqs.txt
 
 ---
 
-## 🔧 Function Usage
+## Function Usage
 
 ### **`generate_sequences(len, n = 1, motif_name = "M01681")`**
 
@@ -113,7 +113,7 @@ generate_sequences(len = 200, n = 1000, motif_name = "M12611")
 
 ---
 
-## 📊 How It Works
+## How It Works
 
 1. Load the selected PFM from `pfms/`
 2. Sample a motif instance according to its probability model
@@ -128,7 +128,7 @@ generate_sequences(len = 200, n = 1000, motif_name = "M12611")
 
 ---
 
-## 🔬 Future Extensions
+## Future Extensions
 
 This generator can be extended to support:
 
@@ -142,7 +142,7 @@ This generator can be extended to support:
 
 ---
 
-## 👤 Author
+## Author
 
 Steven Li  
 Brent Lab  
