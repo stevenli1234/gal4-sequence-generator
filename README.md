@@ -26,6 +26,7 @@ DNA binding sequences according to their base probabilities.
 
 ## File Structure
 
+```
 gal4-sequence-generator/
 │
 ├── generate_sequences.R      # Main script
@@ -35,4 +36,4 @@ gal4-sequence-generator/
 │      └── ...
 │
 └── output/                   # Generated sequences will be saved here
-
+```
