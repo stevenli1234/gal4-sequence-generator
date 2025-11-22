@@ -132,7 +132,3 @@ generate_sequences <- function(len, n = 1, motif_name = "M01681") {
   # also return sequences to the R session
   return(sequences)
 }
-
-###############################################################
-# END OF FILE
-###############################################################
