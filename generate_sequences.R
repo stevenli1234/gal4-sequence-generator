@@ -1,34 +1,38 @@
-###############################################
-# GAL4 Synthetic Sequence Generator
-# ---------------------------------------------
-# This script loads several GAL4 position frequency 
-# matrices (PFMs) from the ./pfms/ folder, generates 
-# synthetic DNA binding sequences for each motif, and 
-# saves them into the ./output/ folder.
+###############################################################
+# generate_sequences.R
+# -------------------------------------------------------------
+# PFM-based generator: embed a motif generated from a position
+# frequency matrix (PFM) into a random DNA background of any
+# specified total length, and save sequences into ./output/.
+#
+# Folder structure (relative to this script):
+#   ./pfms/   -> contains motif PFM .txt files
+#   ./output/ -> generated sequences will be saved here
 #
 # HOW TO USE:
-# 1. Clone the repository:
-#       git clone https://github.com/stevenli1234/gal4-sequence-generator.git
+#   1) Set working directory to repo root:
+#        setwd("path/to/gal4-sequence-generator")
 #
-# 2. Open R or RStudio.
+#   2) Source the script:
+#        source("generate_sequences.R")
 #
-# 3. Set working directory to the project folder:
-#       setwd("path/to/gal4-sequence-generator")
+#   3) Generate sequences. Examples:
 #
-# 4. Run the script:
-#       source("generate_sequences.R")
+#      # 100 sequences, each 323 bp, using motif M01681:
+#      generate_sequences(len = 323, n = 100, motif_name = "M01681")
 #
-# OUTPUT:
-# - Synthetic sequences will appear in the ./output/ directory.
-# - 50,000 sequences generated per motif (modifiable).
+#      # 50 sequences, each 200 bp, using motif M07980:
+#      generate_sequences(len = 200, n = 50, motif_name = "M07980")
 #
-###############################################
+# Output file (examples):
+#   ./output/embedded_M01681_323bp_100seqs.txt
+#
+###############################################################
 
 # -----------------------------
-# Functions
+# 1. Helper: generate motif instance from PFM
 # -----------------------------
-
-generate_sequence_from_pfm <- function(pfm) {
+generate_motif_from_pfm <- function(pfm) {
   bases <- c("A", "C", "G", "T")
   seq <- sapply(1:nrow(pfm), function(i) {
     sample(bases, size = 1, prob = pfm[i, ])
@@ -36,14 +40,17 @@ generate_sequence_from_pfm <- function(pfm) {
   paste(seq, collapse = "")
 }
 
-generate_sequences <- function(pfm, n = 50000) {
-  replicate(n, generate_sequence_from_pfm(pfm))
+# -----------------------------
+# 2. Helper: generate random background of given length
+# -----------------------------
+generate_background <- function(len) {
+  bases <- c("A", "C", "G", "T")
+  paste(sample(bases, size = len, replace = TRUE), collapse = "")
 }
 
 # -----------------------------
-# Load PFMs (relative paths)
+# 3. Define motif files (GAL4 PFMs)
 # -----------------------------
-
 motif_files <- list(
   M01681 = "pfms/Gal4_M01681_3.00.txt",
   M07980 = "pfms/Gal4_M07980_3.00.txt",
@@ -59,37 +66,73 @@ load_pfm <- function(path) {
   as.matrix(df[, c("A", "C", "G", "T")])
 }
 
+# load all PFMs into a list
 pfm_list <- lapply(motif_files, load_pfm)
 
 # -----------------------------
-# Generate sequences
+# 4. Main function: generate_sequences()
 # -----------------------------
-
-set.seed(123)
-
-generated_sequences <- lapply(pfm_list, generate_sequences, n = 50000)
-
-# -----------------------------
-# Save output to ./output/
-# -----------------------------
-
-if (!dir.exists("output")) dir.create("output")
-
-for (tf in names(generated_sequences)) {
-  output_file <- paste0("output/synthetic_", tf, "_50000seqs.txt")
-  writeLines(generated_sequences[[tf]], output_file)
+generate_sequences <- function(len, n = 1, motif_name = "M01681") {
+  if (!motif_name %in% names(pfm_list)) {
+    stop("motif_name must be one of: ", paste(names(pfm_list), collapse = ", "))
+  }
+  
+  pfm <- pfm_list[[motif_name]]
+  motif_len <- nrow(pfm)
+  
+  if (len <= motif_len) {
+    stop("len must be greater than motif length (", motif_len, " bp).")
+  }
+  
+  # number of background bases
+  bg_len <- len - motif_len
+  
+  # ensure output directory exists
+  if (!dir.exists("output")) dir.create("output")
+  
+  set.seed(123)  # reproducible by default; you can change or remove this
+  
+  sequences <- character(n)
+  
+  for (i in seq_len(n)) {
+    # generate background
+    bg <- generate_background(bg_len)
+    
+    # generate motif instance
+    motif_seq <- generate_motif_from_pfm(pfm)
+    
+    # choose random insertion position: 1..(bg_len + 1)
+    insert_pos <- sample(1:(bg_len + 1), size = 1)
+    
+    # build final sequence
+    seq_i <- paste0(
+      substr(bg, 1, insert_pos - 1),
+      motif_seq,
+      substr(bg, insert_pos, nchar(bg))
+    )
+    
+    sequences[i] <- seq_i
+  }
+  
+  # construct output file name
+  fname <- paste0(
+    "output/embedded_",
+    motif_name, "_",
+    len, "bp_",
+    n, "seqs.txt"
+  )
+  
+  writeLines(sequences, fname)
+  
+  cat(
+    "Generated", n, "sequence(s) of", len, "bp each, with motif",
+    motif_name, "embedded.\nSaved to:", fname, "\n"
+  )
+  
+  # also return sequences to the R session
+  return(sequences)
 }
 
-# -----------------------------
-# Print examples
-# -----------------------------
-
-for (tf in names(generated_sequences)) {
-  cat("=== Example from", tf, "===\n")
-  print(generated_sequences[[tf]][1:3])
-  cat("\n")
-}
-
-###############################################
-# END OF SCRIPT
-###############################################
+###############################################################
+# END OF FILE
+###############################################################
